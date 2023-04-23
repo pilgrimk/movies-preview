@@ -6,6 +6,7 @@ import './Home.css'
 
 const Home = () => {
   const pageSize = 6;
+  const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [alertState, setAlertState] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState('');
@@ -17,12 +18,16 @@ const Home = () => {
     to: 0
   });
 
+  const filteredMovies = movies.filter(movie => {
+    return movie.title.toLowerCase().includes(query.toLowerCase())
+  });
+
   const handlePageChange = ((event, page) => {
     const from = (page - 1) * pageSize;
     const to = (page - 1) * pageSize + pageSize;
 
     setPagination({ ...pagination, from: from, to: to });
-    setCurrentMovies(movies.slice(from, to));
+    setCurrentMovies(filteredMovies.slice(from, to));
 
     // scroll to top of page
     window.scrollTo(0, 0)
@@ -66,11 +71,11 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    setPagination({ ...pagination, count: movies.length });
-    setCurrentMovies(movies.slice(0, pageSize));
+    setPagination({ ...pagination, count: filteredMovies.length });
+    setCurrentMovies(filteredMovies.slice(0, pageSize));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [movies]);
+  }, [movies, query]);
 
   return (
     <React.Fragment>
@@ -84,7 +89,20 @@ const Home = () => {
         ) : (
           <React.Fragment />
         )}
-      <div className='app__home app__bg flex__center section__padding' id='about'>
+      <div
+        className='app__home app__bg flex__center section__padding' id='about'
+      >
+        <div className='app__home_searchbar'>
+          <div className='app__home_searchbar_label'>
+            Search:
+          </div>
+          <div className='app__home_searchbar_input'>
+            <input type='search'
+              onChange={e => setQuery(e.target.value)}
+              value={query}
+            />
+          </div>
+        </div>
         <Grid container
           spacing={2}
           direction={{ xs: 'column', sm: 'row' }}
